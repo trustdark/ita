@@ -1,0 +1,60 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: custom-files
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: "standard"
+  resources:
+    requests:
+      storage: 2G
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter-notebook
+  labels:
+    app: jupyter-notebook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyter-notebook
+  template:
+    metadata:
+     labels:
+       app: jupyter-notebook
+    spec:
+      securityContext:
+        fsGroup: 100
+      containers:
+      - name: minimal-notebook
+        image: jupyter/all-spark-notebook
+        ports:
+        - containerPort: 8888
+        volumeMounts:
+        - mountPath: /home/jovyan/work
+          name: myfiles
+      volumes:
+      - name: myfiles
+        persistentVolumeClaim:
+          claimName: custom-files
+          readOnly: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyter-balancer
+  labels:
+    app: jupyter-notebook
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 34.76.237.51
+  ports:
+  - port: 80
+    targetPort: 8888
+  selector:
+    app: jupyter-notebook
+---
