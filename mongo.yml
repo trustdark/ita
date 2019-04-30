@@ -1,0 +1,66 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mongodb-service
+  namespace: default
+spec:
+  selector:
+    app: mongodb
+    role: master
+    tier: backend
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        role: master
+        tier: backend
+    spec:
+      containers:
+      - name: mongodb
+        image: bitnami/mongodb:latest
+        ports:
+        - containerPort: 27017
+        env:
+          - name: MONGODB_USERNAME
+            value: main_admin
+          - name: MONGODB_PASSWORD
+            value: abc123
+          - name: MONGODB_DATABASE
+            value: mysinoptik
+          - name: MONGODB_ROOT_PASSWORD
+            value: abc123
+#         volumeMounts:
+#           - name: mongodb-persistent-storage
+#             mountPath: "/bitnami/mongodb"
+#       volumes:
+#         - name: mongodb-persistent-storage
+#           persistentVolumeClaim:
+#             claimName: mongo-pv-claim
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: mongo-pv-claim 
+#   namespace: kube-system 
+#   labels:
+#     service: mongodb-service
+#   annotations:
+#     volume.beta.kubernetes.io/storage-class: "standard"
+# spec:
+#   accessModes:
+#     - ReadWriteMany
+#   resources:
+#     requests:
+#       storage: 1Gi

@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-ingress-configmap
+  namespace: kube-system
+data:
+  traefik.toml: |
+    [Global]
+    debug = true
+    [entrypoints]
+      [entrypoints.web]
+          address = ":80"
+      # [entryPoints.web-secure]
+      #     address = ":443"
+      [entrypoints.mongo-port]
+          address = ":27017"
+
+    [providers]
+    [providers.file]
+    [tcp] # YAY!
+      [tcp.routers]
+          [tcp.routers.everything-to-mongo]
+            entrypoints = ["mongo-port"]
+            rule = "HostSNI(`*`)" # Catches every request       
+            service = "database"
+      [tcp.services]
+        [tcp.services.database.LoadBalancer]
+          [[tcp.services.database.LoadBalancer.servers]]
+            address = "mongodb-service.default.svc:27017"
+
+    [http] # yakscho ne ide - pribrati
+      [http.routers]
+        [http.routers.for-jupyterx]
+          entryPoints = ["web-secure", "web"] # won't listen to entrypoint mongo-port
+          # rule = "Host(`clients-ui.ddns.net`)"
+          # rule = "Path(`/jupyterx`)" # abo /jupyterx/*
+          rule = "PathPrefix(`/jupyterx`)"
+          service = "jupyterx"
+      [http.services]
+        [http.services.jupyterx.LoadBalancer]
+        PassHostHeader = true
+        [[http.services.jupyterx.LoadBalancer.servers]]
+        url = "http://jupyter-service.default.svc/"
+        weight = 100
