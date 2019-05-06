@@ -21,7 +21,7 @@ data:
 
     [providers]
     [providers.file]
-    [tcp] # YAY!
+    [tcp]
       [tcp.routers]
           [tcp.routers.everything-to-mongo]
             entrypoints = ["mongo-port"]
@@ -32,7 +32,7 @@ data:
           [[tcp.services.database.LoadBalancer.servers]]
             address = "mongodb-service.default.svc:27017"
 
-    [http] # yakscho ne ide - pribrati
+    [http]
       [http.routers]
         [http.routers.for-jupyterx-https]
           entryPoints = ["web-secure"] # won't listen to entrypoint mongo-port

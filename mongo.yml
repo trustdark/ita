@@ -52,8 +52,8 @@ spec:
 # apiVersion: v1
 # kind: PersistentVolumeClaim
 # metadata:
-#   name: mongo-pv-claim 
-#   namespace: kube-system 
+#   name: mongo-pv-claim
+#   namespace: kube-system
 #   labels:
 #     service: mongodb-service
 #   annotations:

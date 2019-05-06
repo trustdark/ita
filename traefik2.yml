@@ -16,9 +16,9 @@ spec:
       serviceAccountName: traefik-ingress-controller
       terminationGracePeriodSeconds: 60
       volumes:
-        - name: traefik-ui-tls-cert
+        - name: traefik-tls-cert
           secret:
-            secretName: traefik-ui-tls-cert
+            secretName: traefik-tls-cert
         - name: traefik-ingress-configmap
           configMap:
             name: traefik-ingress-configmap
@@ -38,7 +38,7 @@ spec:
           containerPort: 27017
         volumeMounts:
           - mountPath: "/ssl"
-            name: "traefik-ui-tls-cert"
+            name: "traefik-tls-cert"
           - mountPath: "/config"
             name: "traefik-ingress-configmap"
         args:
