@@ -1,9 +1,3 @@
-# ---
-# apiVersion: v1
-# kind: ServiceAccount
-# metadata:
-#   name: traefik-ingress-controller
-#   namespace: kube-system
 ---
 kind: DaemonSet
 apiVersion: extensions/v1beta1
@@ -22,9 +16,9 @@ spec:
       serviceAccountName: traefik-ingress-controller
       terminationGracePeriodSeconds: 60
       volumes:
-        # - name: traefik-ui-tls-cert
-        #   secret:
-        #     secretName: traefik-ui-tls-cert
+        - name: traefik-ui-tls-cert
+          secret:
+            secretName: traefik-ui-tls-cert
         - name: traefik-ingress-configmap
           configMap:
             name: traefik-ingress-configmap
@@ -35,13 +29,16 @@ spec:
         - name: http
           containerPort: 80
           hostPort: 80
+        - name: web-secure
+          containerPort: 443
+          hostPort: 443
         - name: admin
           containerPort: 8080
         - name: mongodb
           containerPort: 27017
         volumeMounts:
-          # - mountPath: "/ssl"
-          #   name: "traefik-ui-tls-cert"
+          - mountPath: "/ssl"
+            name: "traefik-ui-tls-cert"
           - mountPath: "/config"
             name: "traefik-ingress-configmap"
         args:
@@ -61,13 +58,16 @@ spec:
       port: 80
       name: web
     - protocol: TCP
+      port: 443
+      name: web-secure
+    - protocol: TCP
       port: 8080
       name: admin
     - port: 27017
       protocol: TCP
       name: mongodb
   type: LoadBalancer
-#  loadBalancerIP: 35.240.45.11
+  # loadBalancerIP: 35.240.45.11
 ---
 apiVersion: v1
 kind: Service
@@ -81,4 +81,3 @@ spec:
   - name: dashboard-port
     port: 80
     targetPort: 8080
-
